@@ -2,6 +2,25 @@
 
 All notable changes to `@metaengine/openapi-react` will be documented in this file.
 
+## [1.0.3] - 2026-04-08
+
+### Features
+
+- **New: `--type-mapping <slug=target>` flag** — Opt-in override for the TypeScript type emitted for a given OpenAPI `(type, format)` pair. Repeatable. Unknown slugs or targets are hard errors — no silent fallbacks.
+
+  | Slug | OpenAPI `(type, format)` | Default | Override |
+  |------|--------------------------|---------|----------|
+  | `int64` | `(integer, int64)` | `number` | `int64=bigint` |
+  | `decimal` | `(number, decimal)` | `number` | `decimal=string` |
+  | `date-time` | `(string, date-time)` | `Date` | `date-time=string` |
+  | `date` | `(string, date)` | `Date` | `date=string` |
+
+  ```bash
+  npx @metaengine/openapi-react api.yaml ./src/app/api \
+    --type-mapping int64=bigint \
+    --type-mapping date-time=string
+  ```
+
 ## [1.0.2] - 2026-03-30
 
 ### Features
