@@ -2,6 +2,27 @@
 
 All notable changes to `@metaengine/openapi-react` will be documented in this file.
 
+## [1.1.0] - 2026-05-04
+
+### Changed
+
+- **Generated client now exports a `createClient()` factory** — services no longer pull config from a `http-utils` module. Each generated service method takes an `apiClient: ApiClient` as its first argument, obtained from `createClient(config)`. The previous `http-utils.ts` and `api-config.ts` files are no longer emitted; consumers need to migrate their imports and call sites to the new factory shape
+- **`--tanstack-query` now wires through a React Context** — the generated `client.ts` exports `ApiClientContext`, `ApiClientProvider`, and `useApiClient()`. Generated hooks resolve their client via `useApiClient()`, so consumers must wrap their app once with `<ApiClientProvider value={createClient({ ... })}>`
+- **Inline enums consolidated by default** — duplicate inline enum definitions are deduplicated and emitted as a single named type instead of repeating identical literal unions at each usage site
+- **Inline array-of-object items emitted as named types** — array properties whose items are inline object schemas now produce a named interface, e.g. `users: User[]` instead of `users: { id: number; ... }[]`
+- **Discriminator mapping literals pinned on union subtypes** — each subtype carries its discriminator value as a literal type so TypeScript narrows correctly when switching on the discriminator
+- **`@deprecated` JSDoc tags emitted regardless of `--documentation`** — deprecated types and properties always get the `@deprecated` tag so IDE tooling can warn even when JSDoc generation is otherwise off
+
+### Bug Fixes
+
+- **Network errors during fetch wrapped as `HttpError(0, ...)`** — failed fetches no longer bubble a raw `TypeError` to consumers; all network failures normalize into the package's `HttpError` shape with status code `0`
+- **Fixed: `--service-suffix` doubles the `Api` suffix in barrel aliases** — the generated `index.ts` no longer produces aliases like `UsersApiApi` when `--service-suffix Api` is in effect
+- **Fixed: blank line after JSDoc `*/` in service files** — the trailing blank line between a comment block and the function it documents is removed
+- **Fixed: multi-line JSDoc continuation prefixes** — wrapped JSDoc lines correctly start with ` * `, eliminating stray indentation
+- **Fixed: inline synthetic type names capped at 100 characters** — deeply nested inline schemas no longer produce overly long generated type names
+- **Fixed: array-branch FormData object serialization** — when a multipart field is an array of objects, each entry is serialized correctly instead of being collapsed
+- **Fixed: discriminated union members dropping wire annotations** — inline `oneOf` members combined with a `discriminator` keep their wire-format annotations in the generated TypeScript
+
 ## [1.0.3] - 2026-04-08
 
 ### Features
