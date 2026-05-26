@@ -2,6 +2,40 @@
 
 All notable changes to `@metaengine/openapi-react` will be documented in this file.
 
+## [1.2.1] - 2026-05-26
+
+### Features
+
+- **OpenAPI 3.1 support** — specs written against OpenAPI 3.1 / JSON Schema 2020-12 are now parsed and generated correctly. 3.0 specs are unaffected.
+- **New: `--types-barrel` flag** — emits an `index.ts` barrel per folder (`models/index.ts`, plus the `.api` service files) and a root `index.ts`, so consumers can import everything from one entry point. Services are re-exported under a namespace to avoid name collisions; models are re-exported flat.
+
+  ```bash
+  npx @metaengine/openapi-react api.yaml ./src/app/api --types-barrel
+  ```
+
+### OpenAPI 3.1 output
+
+- `oneOf` members of the form `{ "type": "null" }` now contribute `| null` to the property type instead of generating a spurious `Null` interface.
+- `const: <value>` on a schema generates a literal type (`channel: 'web'`) instead of falling back to `string`.
+- `allOf` combining a `$ref` with an inline override no longer drops the inline branch.
+- Array nullability is preserved: `type: ["array","null"]` and nullable items now generate `Array<string | null>` / `Array<string | null> | null` instead of collapsing to `Array<string>`.
+- `$ref` JSON-Pointer escapes (`~1`, `~0`) resolve correctly instead of falling back to `unknown`.
+- `$dynamicRef` / `$dynamicAnchor` recursive schemas resolve to proper self-referencing types.
+- `contentEncoding` / `contentMediaType` binary schemas generate `Blob` output, matching 3.0 `format: binary`.
+- Top-level `webhooks:` schemas generate typed payload interfaces.
+
+### Output
+
+- Array-typed query parameters with inline enum items render as `Array<'a' | 'b'>` instead of `Array<string>`.
+- Backslash and control characters in inline-enum string literals are now escaped, producing valid TypeScript.
+- With `--documentation`, auto-generated `@returns` text uses the resource noun instead of leaking the URL action segment.
+
+### Bug Fixes
+
+- The generated `ApiClientContext` now defaults to `undefined` and resolves the default client lazily — importing the module no longer throws when env vars are unset. Test suites and multi-tenant apps that supply their own client via `ApiClientProvider` are unaffected.
+- Generated hooks no longer truncate parameters whose type contains a comma (e.g. `Record<string, string>`); all arguments are passed through to the service method.
+- `--strict-validation` no longer rejects valid 3.1 specs whose component keys contain `/` or `~`.
+
 ## [1.1.0] - 2026-05-04
 
 ### Changed
