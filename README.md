@@ -226,6 +226,20 @@ VITE_ORDERS_API_URL=http://localhost:3002/api
 
 ---
 
+## Error response models
+
+Schemas used by declared error responses are generated alongside request and success-response models. Their referenced enums and base models are included when filtering operations with `--include-tags`; no additional flag is needed.
+
+```bash
+npx @metaengine/openapi-react api.json ./src/api --include-tags Things --types-barrel
+```
+
+For a `422` response referencing `ThingsProblemDetails`, whose `code` property references `ThingsErrorCode`, the output includes `types/things-problem-details.ts` and `types/things-error-code.ts`. Inline error bodies also receive named models.
+
+Generated clients parse `application/json` and structured `+json` error responses, including `application/problem+json`, into `HttpError.body`. Media types are matched without regard to case or charset parameters.
+
+These types can be imported when handling validated error payloads. Generating them does not perform runtime validation of the server response.
+
 ## Generated Code Structure
 
 ```
